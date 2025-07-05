@@ -1,6 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = 'http://api.londoneducation.uz';
 export const AUTH_TOKEN_KEY = 'authToken';
 
 export async function apiRequest(endpoint, method = 'GET', body = null, tokenParam = null, isFormData = false) {
