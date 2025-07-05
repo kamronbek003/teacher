@@ -71,7 +71,7 @@ const getWeeklySchedule = (groups) => {
 
     groups.forEach(group => {
         if (group.status !== 'FAOL' || !group.darsJadvali || !group.darsVaqt) return;
-        const scheduleDays = group.darsJadvali.split('/').map(day => day.trim());
+        const scheduleDays = group.darsJadvali.split(',').map(day => day.trim());
         const timeParts = group.darsVaqt.split('-').map(time => time.trim());
         if (timeParts.length < 1) return;
         const startTimeStr = timeParts[0];

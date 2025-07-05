@@ -6,18 +6,65 @@ import Avatar from '../components/Avatar';
 import Button from '../components/Button';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
-import { Save, CalendarDays } from 'lucide-react';
+import { Save, CalendarDays, X, MessageSquare } from 'lucide-react';
 import { createDailyFeedback } from '../services/api';
 import { listVariants } from '../utils/animationVariants';
 
 const SCORE_BASED_FEEDBACK_TEMPLATES = [
-    { range: [90, 100], feedback: 'A\'lo darajadagi ishlash. Barcha ko\'rsatkichlar bo\'yicha yuqori natijalar ko\'rsatdi.' },
-    { range: [80, 89], feedback: 'Juda yaxshi natija. Berilgan vazifalarni to\'g\'ri bajargan, darsda faol qatnashgan.' },
-    { range: [70, 79], feedback: 'Yaxshi natija. Mavzuni o\'zlashtirgan, ammo ba\'zi jihatlarda qo\'shimcha e\'tibor talab etiladi.' },
-    { range: [60, 69], feedback: 'Qoniqarli natija. Asosiy tushunchalarni o\'zlashtirgan, biroq faollikni oshirish va vazifalarni to\'liq bajarish ustida ishlash kerak.' },
-    { range: [50, 59], feedback: 'Yomon natija. Mavzuni o\'zlashtirishda katta qiyinchiliklarga duch kelmoqda. Qo\'shimcha darslar va individual yondashuv tavsiya etiladi.' },
-    { range: [0, 49], feedback: 'Juda yomon natija. Jiddiy e\'tibor va yordam talab qiladi. Darsga tayyorgarlik ko\'rish va faol qatnashish kerak.' },
+    { 
+        range: [100, 100], 
+        feedback: 'Maksimal natija – 100 ball! Aql-zakovat, mehnatsevarlik va izlanishning yorqin namunasi! Bu o‘quvchi nafaqat mavzuni chuqur o‘zlashtirgan, balki o‘z fikrini erkin bayon eta oladi, ijodiy yondashuvga ega va o‘rnak bo‘lish darajasida yetuk. Bunday yutuqlar faqat qat’iyat, mas’uliyat va tinimsiz harakat orqali qo‘lga kiritiladi. Shu ruhda davom etsa, yuksak cho‘qqilar uni kutmoqda!'
+    },
+    { 
+        range: [95, 99], 
+        feedback: 'Zo‘r natija! O‘quvchi mavzuni mukammal o‘zlashtirgan, mustaqil fikrlay oladi va ijodiy yondashuv ko‘rsatgan. Bunday yuksak daraja ilhomlantiradi. Davom et!'
+    },
+    { 
+        range: [90, 94], 
+        feedback: 'A’lo! Darsda faol ishtirok etadi, topshiriqlarni to‘g‘ri va o‘z vaqtida bajaradi. Mavzuni chuqur tushungan, izlanishga qiziqishi baland. Barakali mehnat!'
+    },
+    { 
+        range: [85, 89], 
+        feedback: 'Juda yaxshi! Bilim darajasi yuqori, savollarga aniq va puxta javob beradi. O‘z fikrini bildirishga intiladi. Yana biroz harakat bilan mukammallikka erishadi.'
+    },
+    { 
+        range: [80, 84], 
+        feedback: 'Yaxshi! Mavzuni yaxshi o‘zlashtirgan, topshiriqlarni to‘g‘ri bajargan. Ayrim joylarda ishonch yetishmasa-da, umumiy tayyorgarligi mustahkam.'
+    },
+    { 
+        range: [75, 79], 
+        feedback: 'O‘rtadan yuqori. Mavzu bo‘yicha tushunchasi yetarli, ba’zida xatoliklarga yo‘l qo‘ygan. Yaxshi natijaga erishgan, ammo doimiy mashq foydali bo‘ladi.'
+    },
+    { 
+        range: [70, 74], 
+        feedback: 'Qoniqarli. Asosiy tushunchalarni o‘zlashtirgan, ammo ayrim savollarda ikkilanib qolgan. Diqqatni jamlab, darsga tayyorgarlikni oshirishi kerak.'
+    },
+    { 
+        range: [65, 69], 
+        feedback: 'O‘tish darajasi. Bilimlar yetarli darajada emas, mavzuni yuzaki tushungan. O‘z ustida mustaqil ishlash va darslikka qayta murojaat qilish foyda beradi.'
+    },
+    { 
+        range: [60, 64], 
+        feedback: 'Minimal talab. Mavzuni tushunishda qiynalgan, topshiriqlarning bir qismi bajarilgan. Bilimni mustahkamlash uchun ko‘proq vaqt ajratishi kerak.'
+    },
+    { 
+        range: [55, 59], 
+        feedback: 'Kuchsiz. O‘zlashtirishda jiddiy bo‘shliqlar mavjud. Dars materiallarini qayta ko‘rib chiqish va o‘qituvchi bilan alohida ishlash zarur.'
+    },
+    { 
+        range: [50, 54], 
+        feedback: 'Juda kuchsiz. Tayyorlanish yetarli emas, asosiy tushunchalar yaxshi o‘zlashtirilmagan. Bilimni qayta shakllantirish ustida ishlashi kerak.'
+    },
+    { 
+        range: [40, 49], 
+        feedback: 'Yomon. Darsda ishtirok sust, topshiriqlar bajarilmagan yoki noto‘g‘ri bajarilgan. O‘rganishga jiddiyroq yondashuvi lozim.'
+    },
+    { 
+        range: [0, 39], 
+        feedback: 'Qoniqarsiz. O‘quv faoliyatiga bo‘lgan munosabat juda sust. Darsga qatnashmagan yoki topshiriqlarni bajarmagan. Ota-onasi bilan alohida suhbat tavsiya etiladi.'
+    },
 ];
+
 
 const formatDateForInput = (date) => {
     if (!date || isNaN(date.getTime())) return '';
@@ -42,14 +89,14 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
         activeStudents.forEach(student => {
             if (!studentFeedbacks[student.id]) {
                 initialFeedbacks[student.id] = {
-                    ball: '', 
+                    ball: '',
                     feedback: '',
                     isFeedbackCustom: false,
                 };
             }
         });
         setStudentFeedbacks(prev => ({ ...initialFeedbacks, ...prev }));
-    }, [activeStudents]);
+    }, [activeStudents, studentFeedbacks]);
 
 
     const handleFeedbackChange = useCallback((studentId, field, value) => {
@@ -60,7 +107,7 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
             if (field === 'feedback') {
                 newFeedbackState.isFeedbackCustom = true;
             } else if (field === 'ball') {
-                const parsedBall = parseInt(value);
+                const parsedBall = parseInt(value, 10);
                 if (!isNaN(parsedBall)) {
                     const suggestedTemplate = SCORE_BASED_FEEDBACK_TEMPLATES.find(
                         t => parsedBall >= t.range[0] && parsedBall <= t.range[1]
@@ -68,7 +115,7 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
 
                     if (suggestedTemplate && (!newFeedbackState.isFeedbackCustom || newFeedbackState.feedback === '')) {
                         newFeedbackState.feedback = suggestedTemplate.feedback;
-                        newFeedbackState.isFeedbackCustom = false; 
+                        newFeedbackState.isFeedbackCustom = false;
                     } else if (!newFeedbackState.isFeedbackCustom && value === '') {
                         newFeedbackState.feedback = '';
                     }
@@ -81,22 +128,22 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
 
             return { ...prev, [studentId]: newFeedbackState };
         });
-        setSaveError(null); 
+        setSaveError(null);
         setSaveSuccess(false);
     }, []);
 
     const validateFeedback = (feedback) => {
-        if (feedback.ball === '' || feedback.ball === null || isNaN(parseInt(feedback.ball))) {
+        if (feedback.ball === '' || feedback.ball === null || isNaN(parseInt(feedback.ball, 10))) {
             return "Ball qiymati to'g'ri kiritilmagan.";
         }
         if (!feedback.feedback || feedback.feedback.trim() === '') {
             return "Fikr-mulohaza tavsifi bo'sh bo'lishi mumkin emas.";
         }
-        const parsedBall = parseInt(feedback.ball);
-        if (parsedBall < 0 || parsedBall > 100) { 
+        const parsedBall = parseInt(feedback.ball, 10);
+        if (parsedBall < 0 || parsedBall > 100) {
             return "Ball 0 dan 100 gacha bo'lishi kerak.";
         }
-        return null; 
+        return null;
     };
 
     const handleSaveAllFeedback = useCallback(async () => {
@@ -121,10 +168,10 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
         let failedSaves = 0;
         const errors = [];
 
-        for (const student of activeStudents) { 
+        for (const student of activeStudents) {
             const feedback = studentFeedbacks[student.id];
 
-            if (!feedback) { 
+            if (!feedback) {
                 errors.push(`O'quvchi ${student.firstName} ${student.lastName} uchun baho ma'lumotlari topilmadi.`);
                 failedSaves++;
                 continue;
@@ -140,12 +187,10 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
             const payload = {
                 studentId: student.id,
                 groupId: group.id,
-                ball: parseInt(feedback.ball),
+                ball: parseInt(feedback.ball, 10),
                 feedback: feedback.feedback,
                 feedbackDate: feedbackDate.toISOString(),
             };
-
-            console.log(`Saving feedback for ${student.firstName} ${student.lastName}:`, payload);
 
             try {
                 await createDailyFeedback(payload, token);
@@ -161,16 +206,18 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
             setSaveSuccess(true);
             setStudentFeedbacks(prev => {
                 const newFeedbacks = { ...prev };
-                activeStudents.forEach(student => { 
+                activeStudents.forEach(student => {
                     const studentHasError = errors.some(err => err.includes(student.firstName) && err.includes(student.lastName));
                     if (!studentHasError) {
-                        delete newFeedbacks[student.id]; 
+                        delete newFeedbacks[student.id];
                     }
                 });
                 return newFeedbacks;
             });
-            setSaveSuccess(false); 
-            onSaveSuccess(); 
+            setTimeout(() => {
+                setSaveSuccess(false);
+                onSaveSuccess();
+            }, 1500);
         }
 
         if (failedSaves > 0) {
@@ -215,8 +262,23 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
     return (
         <div className="relative flex flex-col h-full bg-gray-50 dark:bg-gray-900 rounded-lg">
 
+            <div className="flex-shrink-0 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <div className="flex items-center">
+                    <MessageSquare className="h-6 w-6 mr-3 text-blue-500" />
+                    <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                        Kunlik Baholash
+                    </h2>
+                </div>
+                <button
+                    onClick={onBack}
+                    className="p-1.5 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-blue-500"
+                    aria-label="Yopish"
+                >
+                    <X className="h-5 w-5" />
+                </button>
+            </div>
+
             <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-                {/* Save Status Messages */}
                 <AnimatePresence>
                     {saveError && (
                         <motion.div
@@ -252,7 +314,11 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
                             type="date"
                             id="feedbackDate"
                             value={formatDateForInput(feedbackDate)}
-                            onChange={(e) => setFeedbackDate(new Date(e.target.value))}
+                            onChange={(e) => {
+                                const newDate = new Date(e.target.value);
+                                const userTimezoneOffset = newDate.getTimezoneOffset() * 60000;
+                                setFeedbackDate(new Date(newDate.getTime() + userTimezoneOffset));
+                            }}
                             className="w-full pl-3 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 text-sm transition duration-150 appearance-none shadow-sm"
                             aria-label="Fikr-mulohaza sanasini tanlash"
                         />
@@ -263,7 +329,7 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
                 {activeStudents.length === 0 ? (
                     <p className="text-gray-500 dark:text-gray-400 italic text-center py-5">Faol o'quvchilar topilmadi.</p>
                 ) : (
-                    <motion.div variants={listVariants} initial="hidden" animate="visible" className="space-y-4">
+                    <motion.div variants={studentListVariants} initial="hidden" animate="visible" className="space-y-4">
                         {activeStudents.map(student => {
                             const feedback = studentFeedbacks[student.id] || { ball: '', feedback: '', isFeedbackCustom: false };
 
@@ -312,7 +378,7 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
                                                             {score}
                                                         </Button>
                                                     ))}
-                                                     <Button
+                                                    <Button
                                                         onClick={() => handleFeedbackChange(student.id, 'ball', '')}
                                                         variant="outline"
                                                         size="xs"
@@ -346,11 +412,11 @@ const FeedbackScreen = ({ group, students, onBack, onSaveSuccess }) => {
             </div>
 
             {activeStudents.length > 0 && (
-                <div className="p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 flex justify-end"> 
+                <div className="p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 flex justify-end">
                     <Button
                         onClick={handleSaveAllFeedback}
                         disabled={isSaving}
-                        className="w-full sm:w-auto !py-3 !px-5 text-base bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md shadow-md transition-colors font-semibold"
+                        className="w-full mb-5 sm:w-auto !py-3 !px-5 text-base bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md shadow-md transition-colors font-semibold"
                     >
                         {isSaving ? (
                             <motion.div className="flex items-center justify-center">
@@ -386,7 +452,7 @@ FeedbackScreen.propTypes = {
             firstName: PropTypes.string,
             lastName: PropTypes.string,
             image: PropTypes.string,
-            status: PropTypes.string, 
+            status: PropTypes.string,
         })
     ).isRequired,
     onBack: PropTypes.func.isRequired,

@@ -674,7 +674,7 @@ const GroupDetailScreen = ({ group, onBack }) => {
                                     </Card>
                                 )}
                             </div>
-                            <div className="p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+                            <div className="p-4 sm:p-6 mb-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
                                 <Button
                                     onClick={handleSaveAttendance}
                                     disabled={isSavingAttendance}
