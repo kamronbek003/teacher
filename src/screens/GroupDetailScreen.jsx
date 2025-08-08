@@ -102,6 +102,9 @@ const GroupDetailScreen = ({ group, onBack }) => {
                 setErrorStudents("O'quvchi ma'lumotlari formati noto'g'ri.");
             }
             setStudents(studentData);
+
+            console.log(studentResponse.data);
+            
         } catch (err) {
             console.error("O'quvchilarni yuklashda xatolik:", err);
             setErrorStudents(err.message || "O'quvchilar ro'yxatini yuklab bo'lmadi.");

@@ -140,6 +140,13 @@ export const fetchTeacherGroups = async (teacherId, token) => {
     return apiRequest(`/groups?${queryParams}`, 'GET', null, token);
 };
 
+export const fetchTeacherActiveStudents = async (teacherId, token) => {
+    if (!teacherId) throw new Error("O'qituvchi ID si ko'rsatilmagan.");
+    const queryParams = new URLSearchParams({ filterByTeacherId: teacherId, staus: "FAOL" }).toString();
+    return apiRequest(`/groups?${queryParams}`, 'GET', null, token);
+};
+
+
 export const fetchGroupStudents = async (groupId, token) => {
     if (!groupId) throw new Error("Guruh ID si ko'rsatilmagan.");
     const queryParams = new URLSearchParams({ filterByGroupId: groupId, limit: '100' }).toString();
